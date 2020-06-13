@@ -1,0 +1,41 @@
+version: '3.7'
+services:
+  mysql:
+   container_name: mysql-80
+   image: mysql:8.0
+   restart: on-failure
+   environment:
+     MYSQL_ROOT_PASSWORD: root
+     MYSQL_DATABASE: example
+
+  nginx:
+   image: nginx:1.15.3-alpine
+   restart: on-failure
+   volumes:
+     - './pictime-symfony/public:/usr/src/app'
+     - './docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro'
+   ports:
+     - '8080:80'
+   depends_on:
+     - php 
+
+  php:
+#   image: php:7.4.6-cli
+   container_name: php-9000
+   build:
+     context: .
+     dockerfile: docker/php/Dockerfile
+   restart: on-failure
+   volumes:
+      - './pictime-symfony:/usr/src/app'
+   env_file:
+     - .env
+   user: 0:0
+ 
+  sftp:
+   image: atmoz/sftp
+   volumes:
+      - './:/home/user'    
+   ports:
+      - "2222:22"
+   command: user:user:100
