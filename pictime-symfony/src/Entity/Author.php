@@ -12,7 +12,7 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 /**
  * @ORM\Entity(repositoryClass=AuthorRepository::class)
  *
-// * @UniqueEntity("lastname")
+ * @UniqueEntity("lastname")
  */
 class Author
 {
