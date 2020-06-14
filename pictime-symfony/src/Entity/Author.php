@@ -4,9 +4,13 @@ namespace App\Entity;
 
 use App\Repository\AuthorRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
  * @ORM\Entity(repositoryClass=AuthorRepository::class)
+ *
+ * @UniqueEntity("lastname")
  */
 class Author
 {
@@ -23,7 +27,7 @@ class Author
     private $firstname;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(name="lastname", type="string", length=255, unique=true)
      */
     private $lastname;
 
