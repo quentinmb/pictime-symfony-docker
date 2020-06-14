@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\AuthorRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
@@ -10,7 +12,7 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 /**
  * @ORM\Entity(repositoryClass=AuthorRepository::class)
  *
- * @UniqueEntity("lastname")
+// * @UniqueEntity("lastname")
  */
 class Author
 {
@@ -30,6 +32,24 @@ class Author
      * @ORM\Column(name="lastname", type="string", length=255, unique=true)
      */
     private $lastname;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Book", mappedBy="book")
+     */
+    private $books;
+
+    public function __construct()
+    {
+        $this->books = new ArrayCollection();
+    }
+
+    /**
+     * @return Collection|Product[]
+     */
+    public function getBooks(): Collection
+    {
+        return $this->books;
+    }
 
     public function getId(): ?int
     {
