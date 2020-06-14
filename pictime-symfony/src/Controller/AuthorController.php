@@ -30,7 +30,7 @@ class AuthorController extends AbstractController
      *     methods="GET"
      * )
      */
-    public function show(int $id)
+    public function show(int $id) : JsonResponse
     {
         $author = $this->getDoctrine()
             ->getRepository(self::$model)
@@ -51,7 +51,7 @@ class AuthorController extends AbstractController
      *
      * @Route(
      *     "/author",
-     *     name="store",
+     *     name="author.store",
      *     methods={"POST"}
      *      )
      *
@@ -77,7 +77,11 @@ class AuthorController extends AbstractController
         $entityManager->persist($author);
         $entityManager->flush();
 
-        return new JsonResponse($author);
+        return new JsonResponse([
+            'id' => $author->getId(),
+            'lastname' => $author->getLastname(),
+            'firstname' => $author->getFirstname()
+        ]);
     }
 
 
