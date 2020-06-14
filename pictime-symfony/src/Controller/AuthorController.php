@@ -32,9 +32,17 @@ class AuthorController extends AbstractController
      */
     public function show(int $id)
     {
+        $author = $this->getDoctrine()
+            ->getRepository(self::$model)
+            ->find($id);
+
+        if(empty($author)){
+            return new Response(sprintf('The Author with id = %s does not exist !', $id), 404);
+        }
         return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/AuthorController.php',
+                'id' => $author->getId(),
+                'lastname' => $author->getLastname(),
+                'firstname' => $author->getFirstname()
         ]);
     }
 
