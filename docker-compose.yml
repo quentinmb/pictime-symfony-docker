@@ -6,7 +6,9 @@ services:
    restart: on-failure
    environment:
      MYSQL_ROOT_PASSWORD: root
-     MYSQL_DATABASE: example
+     MYSQL_DATABASE: pictime
+   volumes:
+     - data:/var/lib/mysql
 
   nginx:
    image: nginx:1.15.3-alpine
@@ -17,7 +19,7 @@ services:
    ports:
      - '8080:80'
    depends_on:
-     - php 
+     - php
 
   php:
 #   image: php:7.4.6-cli
@@ -31,11 +33,14 @@ services:
    env_file:
      - .env
    user: 0:0
- 
+
   sftp:
    image: atmoz/sftp
    volumes:
-      - './:/home/user'    
+      - './:/home/user'
    ports:
       - "2222:22"
    command: user:user:100
+
+volumes:
+  data:
