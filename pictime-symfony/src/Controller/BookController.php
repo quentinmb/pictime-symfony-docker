@@ -53,15 +53,21 @@ class BookController extends AbstractController
      *     methods={"POST"}
      *      )
      *
-     * @return Book
+     * @param Request $request
+     * @param ValidatorInterface $validator
+     * @return JsonResponse|Response
      */
-    public function store(Request $request, ValidatorInterface $validator) : JsonResponse
+    public function store(Request $request, ValidatorInterface $validator)
     {
         $book = new self::$model;
         $book->setTitle($request->request->get('title'));
 
         $author = $this->getDoctrine()->getRepository(self::$author)
             ->findOneBy(['lastname' => $request->request->get('author-name')]);
+
+        if(empty($author)){
+            return new Response(sprintf('The Author " %s " does not exist !', $request->request->get('author-name')), 404);
+        }
 
         $book->setAuthor($author);
 
