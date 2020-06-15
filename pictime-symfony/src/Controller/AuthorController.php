@@ -3,21 +3,13 @@
 namespace App\Controller;
 
 use App\Entity\Author;
-use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\ORM\Mapping\ClassMetadataFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Encoder\JsonEncode;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Mapping\ClassDiscriminatorFromClassMetadata;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
 
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\Mapping\Loader\AnnotationLoader;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class AuthorController extends AbstractController
@@ -27,9 +19,55 @@ class AuthorController extends AbstractController
     /**
      * @Route(
      *     "/author/{id}",
+     *     name="author.update",
+     *     methods="PATCH"
+     * )
+     * @param int $id
+     * @param ValidatorInterface $validator
+     * @param Request $request
+     * @return Response|JsonResponse
+     */
+    public function update(int $id, ValidatorInterface $validator, Request $request)
+    {
+        $author = $this->getDoctrine()
+            ->getRepository(self::$model)
+            ->find($id);
+
+        if(empty($author)){
+            return new Response(sprintf('The Author with id = %s does not exist !', $id), 404);
+        }
+
+        $author->setFirstName($request->request->get('firstname'));
+        $author->setLastName($request->request->get('lastname'));
+
+        $errors = $validator->validate($author);
+
+        if (count($errors) > 0) {
+            return $this->json([
+                'success' => false,
+                'message' => (string) $errors
+            ], 403);
+        }
+
+        //Update the author
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->flush();
+
+        return $this->json([
+            'id' => $author->getId(),
+            'lastname' => $author->getLastname(),
+            'firstname' => $author->getFirstname(),
+        ], 200);
+    }
+
+    /**
+     * @Route(
+     *     "/author/{id}",
      *     name="author.delete",
      *     methods="DELETE"
      * )
+     * @param int $id
+     * @return Response
      */
     public function delete(int $id) : Response
     {
@@ -62,6 +100,8 @@ class AuthorController extends AbstractController
      *     name="author",
      *     methods="GET"
      * )
+     * @param int $id
+     * @return JsonResponse|Response
      */
     public function show(int $id)
     {
@@ -98,7 +138,9 @@ class AuthorController extends AbstractController
      *     methods={"POST"}
      *      )
      *
-     * @return Author
+     * @param Request $request
+     * @param ValidatorInterface $validator
+     * @return JsonResponse
      */
     public function store(Request $request, ValidatorInterface $validator) : JsonResponse
     {
@@ -134,7 +176,8 @@ class AuthorController extends AbstractController
      *     name="author.list",
      *     methods="GET"
      * )
-     * @return The list of Authors
+     * @param SerializerInterface $serializer
+     * @return JsonResponse list of Authors
      */
     public function getAuthors(SerializerInterface $serializer) : JsonResponse
     {
