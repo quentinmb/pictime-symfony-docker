@@ -23,6 +23,39 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class AuthorController extends AbstractController
 {
     static $model = Author::class;
+
+    /**
+     * @Route(
+     *     "/author/{id}",
+     *     name="author.delete",
+     *     methods="DELETE"
+     * )
+     */
+    public function delete(int $id) : Response
+    {
+        $author = $this->getDoctrine()
+            ->getRepository(self::$model)
+            ->find($id);
+
+        if(empty($author)){
+            return new Response(sprintf('The Author with id = %s does not exist !', $id), 404);
+        }
+
+        $entityManager = $this->getDoctrine()->getManager();
+
+        //Remove books
+        foreach ($author->getBooks() as $book) {
+            $entityManager->remove($book);
+        }
+
+        //Remove Author
+        $entityManager->remove($author);
+
+        $entityManager->flush();
+
+        return new Response('', 200);
+    }
+
     /**
      * @Route(
      *     "/author/{id}",
