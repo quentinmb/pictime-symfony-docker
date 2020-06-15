@@ -30,7 +30,7 @@ class AuthorController extends AbstractController
      *     methods="GET"
      * )
      */
-    public function show(int $id) : JsonResponse
+    public function show(int $id)
     {
         $author = $this->getDoctrine()
             ->getRepository(self::$model)
@@ -39,10 +39,20 @@ class AuthorController extends AbstractController
         if(empty($author)){
             return new Response(sprintf('The Author with id = %s does not exist !', $id), 404);
         }
+
+        $books = array();
+        foreach ($author->getBooks() as $book) {
+            $books[] = [
+              'id' => $book->getId(),
+              'title' => $book->getTitle()
+            ];
+        }
+
         return $this->json([
                 'id' => $author->getId(),
                 'lastname' => $author->getLastname(),
-                'firstname' => $author->getFirstname()
+                'firstname' => $author->getFirstname(),
+                'books' => $books
         ]);
     }
 

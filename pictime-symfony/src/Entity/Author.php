@@ -34,7 +34,7 @@ class Author
     private $lastname;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Book", mappedBy="book")
+     * @ORM\OneToMany(targetEntity="App\Entity\Book", mappedBy="author")
      */
     private $books;
 
