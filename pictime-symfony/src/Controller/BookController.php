@@ -17,6 +17,33 @@ class BookController extends AbstractController
     static $model = Book::class;
     static $author = Author::class;
 
+
+    /**
+     * @Route(
+     *     "/book/{id}",
+     *     name="book.delete",
+     *     methods="DELETE"
+     * )
+     */
+    public function delete(int $id) : Response
+    {
+        $book = $this->getDoctrine()
+            ->getRepository(self::$model)
+            ->find($id);
+
+        if(empty($book)){
+            return new Response(sprintf('The Book with id = %s does not exist !', $id), 404);
+        }
+
+        $entityManager = $this->getDoctrine()->getManager();
+
+        //Remove Author
+        $entityManager->remove($book);
+        $entityManager->flush();
+
+        return new Response('', 200);
+    }
+
     /**
      * Store an Book
      *
